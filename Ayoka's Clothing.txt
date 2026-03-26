@@ -1,0 +1,4 @@
+storefront - http://localhost:3000
+admin dashbaord - http://localhost:3000/admin
+user dashboard - http://localhost:3000/dashboard
+Restart server via powershell - node node_modules/next/dist/bin/next dev
