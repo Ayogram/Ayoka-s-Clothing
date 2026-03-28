@@ -8,7 +8,7 @@ import Footer from "@/components/layout/Footer"
 // during the build, which prevents 'ReferenceError: location is not defined'.
 const CheckoutPageContent = dynamic(
   () => import("@/components/checkout/CheckoutPageContent"),
-  { 
+  {
     ssr: false,
     loading: () => (
       <main className="min-h-screen flex flex-col pt-24 uppercase tracking-[0.2em] font-bold">
