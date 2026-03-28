@@ -449,6 +449,16 @@ export default function AdminDashboard() {
                   <div className="space-y-2 text-right">
                     <p className="text-[10px] uppercase tracking-[0.4em] text-zinc-500 font-bold">— Total Amount</p>
                     <p className="text-sm font-bold tracking-widest gold-text">₦ {selectedOrder.total.toLocaleString()}</p>
+                    {selectedOrder.payment_receipt && (
+                      <a 
+                        href={selectedOrder.payment_receipt} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-block text-[8px] uppercase tracking-widest font-bold border-b border-gold-500/40 hover:border-gold-500 transition-all text-zinc-500 hover:text-gold-500 mt-2"
+                      >
+                        View Payment Receipt
+                      </a>
+                    )}
                   </div>
                   <div className="space-y-2 col-span-2 pt-6 border-t border-zinc-50 dark:border-zinc-900">
                     <p className="text-[10px] uppercase tracking-[0.4em] text-zinc-500 font-bold">— Delivery Address / Destination</p>

@@ -221,10 +221,12 @@ function UserPortalContent() {
           
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-12">
-            <div className="flex items-center space-x-4 p-6 bg-white dark:bg-black rounded-2xl border border-zinc-100 dark:border-zinc-900 shadow-sm">
-              <Avatar src={session?.user?.image} name={session?.user?.name} size={64} className="border-2 border-gold-500/20" />
-              <div className="space-y-1">
-                <h3 className="text-lg font-serif italic text-black dark:text-white truncate max-w-[150px]">{profileForm.fullName || session?.user?.name || 'Elite Client'}</h3>
+            <div className="flex items-center space-x-4 p-6 bg-white dark:bg-black rounded-2xl border border-zinc-100 dark:border-zinc-900 shadow-sm overflow-hidden min-w-0">
+              <Avatar src={session?.user?.image} name={session?.user?.name} size={64} className="border-2 border-gold-500/20 shrink-0" />
+              <div className="space-y-1 min-w-0">
+                <h3 className="text-base font-serif italic text-black dark:text-white truncate" title={profileForm.fullName || session?.user?.name || 'Elite Client'}>
+                  {profileForm.fullName || session?.user?.name || 'Elite Client'}
+                </h3>
                 <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">— {(session?.user as any)?.role === 'admin' ? 'ADMINISTRATOR' : 'CLIENT'}</p>
               </div>
             </div>

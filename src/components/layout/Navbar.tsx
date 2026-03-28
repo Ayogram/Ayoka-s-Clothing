@@ -98,15 +98,15 @@ const Navbar = () => {
               <Link href="/admin/dashboard" className="text-[10px] uppercase tracking-[0.2em] gold-text font-bold">
                 Portal
               </Link>
-              <Link href="/portal" className="flex items-center space-x-3 group">
+              <Link href="/portal" className="flex items-center space-x-3 group min-w-0">
                 <Avatar 
                   src={session.user?.image} 
                   name={session.user?.name} 
                   size={32} 
-                  className="group-hover:border-gold-500 transition-all" 
+                  className="group-hover:border-gold-500 transition-all shrink-0" 
                 />
-                <div className="flex flex-col">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 group-hover:gold-text transition-all">
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs uppercase tracking-widest font-bold text-zinc-500 group-hover:gold-text transition-all truncate max-w-[80px]" title={session.user?.name || 'Account'}>
                     {session.user?.name?.split(' ')[0] || 'Account'}
                   </span>
                   <span className="text-[8px] uppercase tracking-tighter text-zinc-400">{(session.user as any)?.role || 'User'}</span>

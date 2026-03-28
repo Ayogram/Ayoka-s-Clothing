@@ -78,10 +78,26 @@ export default function CheckoutPageContent() {
         receiptUrl = publicUrl
       }
 
-      // 2. Create Order
+      // 2. Resolve internal Supabase UUID if the current ID is numeric (Google ID)
+      let customerUuid = (session?.user as any)?.id
+      const userEmail = session?.user?.email
+
+      if (customerUuid && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(customerUuid)) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', userEmail)
+          .single()
+        
+        if (profile) {
+          customerUuid = profile.id
+        }
+      }
+
+      // 3. Create Order
       const { error } = await supabase.from('orders').insert([{
-        customer_id: (session?.user as any)?.id,
-        customer_email: session?.user?.email, 
+        customer_id: customerUuid,
+        customer_email: userEmail, 
         total_amount: totalPrice,
         status: 'payment_sent',
         items: cart,
