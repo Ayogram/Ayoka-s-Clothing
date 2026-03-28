@@ -73,7 +73,7 @@ export default function ContactPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            to: 'dammie2k@gmail.com',
+            to: 'ajumobiayomipo@gmail.com',
             subject: `Ayoka Concierge [New]: ${formData.fullName}`,
             html: `<p>A new ${formData.type} has arrived from <strong>${formData.fullName}</strong> (${formData.email}).</p><p>Check your Admin Inbox for details.</p>`
           })
@@ -124,7 +124,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="text-[10px] uppercase tracking-[0.3em] font-bold mb-3 gold-text">General Inquiry</h4>
-                    <p className="text-lg font-serif italic mb-1">dammie2k@gmail.com</p>
+                    <p className="text-lg font-serif italic mb-1">ajumobiayomipo@gmail.com</p>
                     <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">24/7 Response Time</p>
                   </div>
                 </div>

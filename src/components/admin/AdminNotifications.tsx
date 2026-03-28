@@ -156,7 +156,7 @@ const AdminNotifications = ({ onUpdate }: AdminNotificationsProps) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        to: 'dammie2k@gmail.com',
+        to: 'ajumobiayomipo@gmail.com',
         subject: `[SENT] Admin Reply to ${selectedNotification.sender_name}`,
         html: `<p>A reply has been sent out to your client from the concierge portal.</p><p><strong>Client:</strong> ${selectedNotification.sender_name}</p><p><strong>Reply Content:</strong> ${replyMessage}</p>`
       })
