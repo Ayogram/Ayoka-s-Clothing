@@ -58,10 +58,10 @@ const AdminSubscribers = () => {
       const emails = subscribers.map(s => s.email.toLowerCase())
       
       // 2. Fetch all profiles to find matching portal accounts
-      // Caching ALL profiles to perform case-insensitive matching in memory
       const { data: profiles } = await supabase.from('profiles').select('id, email')
+      const profileList = (profiles || []) as any[]
       
-      const matchingProfiles = profiles?.filter(p => emails.includes(p.email.toLowerCase())) || []
+      const matchingProfiles = profileList.filter(p => emails.includes(p.email.toLowerCase())) || []
 
       // 3. Create Notifications for matching users
       const notifications = matchingProfiles.map(p => ({

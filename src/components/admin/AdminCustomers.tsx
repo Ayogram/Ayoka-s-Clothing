@@ -25,7 +25,7 @@ export default function AdminCustomers() {
       // 2. Fetch ALL Orders for stat aggregation
       const { data: orders, error: oError } = await supabase
         .from('orders')
-        .select('customer_id, contact_number, total_amount')
+        .select('customer_id, contact_number, total_amount, created_at')
 
       if (pError || oError) throw pError || oError
 
@@ -33,7 +33,9 @@ export default function AdminCustomers() {
       const customerStats: Record<string, { total: number, count: number }> = {}
       const guestStats: Record<string, { total: number, count: number, created_at: string }> = {}
 
-      orders?.forEach(o => {
+      const ordersList = (orders || []) as any[]
+
+      ordersList.forEach(o => {
         const amount = Number(o.total_amount || 0)
         if (o.customer_id) {
           if (!customerStats[o.customer_id]) customerStats[o.customer_id] = { total: 0, count: 0 }
