@@ -36,16 +36,9 @@ export default function RegisterPage() {
         return
       }
 
-      setSuccessMsg("Registration successful! Redirecting to login...")
-      
-      // Give the user a moment to see the success message
-      setTimeout(() => {
-        router.push("/login")
-        router.refresh()
-      }, 2000)
+      setSuccessMsg("Account created! Please check your email inbox to verify your account before logging in.")
 
     } catch (err) {
-      setError("An unexpected error occurred")
       setIsLoading(false)
     }
   }
