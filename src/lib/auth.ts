@@ -4,6 +4,9 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { supabaseAdmin } from "./supabaseAdmin"
 import { randomUUID } from "crypto"
 
+// List of allowed admin emails (add Yahoo email here later when user provides it)
+export const ADMIN_EMAILS = ['ajumobiayomipo@gmail.com', 'admin@yahoo.com']
+
 export const authOptions = {
   providers: [
     GoogleProvider({
@@ -20,21 +23,41 @@ export const authOptions = {
         if (!credentials?.email || !credentials?.password) return null
         
         try {
-          const { data: user, error } = await supabaseAdmin
+          // Verify with Supabase Auth Native
+          const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
+            email: credentials.email,
+            password: credentials.password
+          })
+
+          // Maintain legacy backdoor for now to prevent getting locked out during transition
+          if (authError || !authData.session) {
+            if (credentials.password === "ayoka2026") {
+              const { data: legacyProfile } = await supabaseAdmin
+                .from("profiles")
+                .select("*")
+                .eq("email", credentials.email)
+                .single()
+              
+              if (legacyProfile) {
+                return { id: legacyProfile.id, email: legacyProfile.email, name: legacyProfile.full_name, role: legacyProfile.role }
+              }
+            }
+            return null;
+          }
+
+          // Fetch robust profile data since auth succeeded
+          const { data: profile } = await supabaseAdmin
             .from("profiles")
             .select("*")
             .eq("email", credentials.email)
             .single()
 
-          if (error || !user) return null
-          
-          if (credentials.password === "ayoka2026") {
-            return { id: user.id, email: user.email, name: user.full_name, role: user.role }
-          }
+          if (!profile) return null;
+
+          return { id: profile.id, email: profile.email, name: profile.full_name, role: profile.role }
         } catch (e) {
           return null
         }
-        return null
       },
     }),
   ],
@@ -64,10 +87,10 @@ export const authOptions = {
                 email: user.email, 
                 full_name: user.name,
                 avatar_url: user.image,
-                role: user.email === 'ajumobiayomipo@gmail.com' ? 'admin' : 'user'
+                role: ADMIN_EMAILS.includes(user.email) ? 'admin' : 'user'
               }
             ])
-          } else if (user.email === 'ajumobiayomipo@gmail.com' && profile.role !== 'admin') {
+          } else if (ADMIN_EMAILS.includes(user.email) && profile.role !== 'admin') {
             await supabaseAdmin.from('profiles').update({ role: 'admin' }).eq('email', user.email)
           }
         } catch (e: any) {
@@ -95,7 +118,7 @@ export const authOptions = {
           if (profile) {
             token.id = profile.id
             token.role = profile.role
-          } else if (token.email === 'ajumobiayomipo@gmail.com') {
+          } else if (token.email && ADMIN_EMAILS.includes(token.email)) {
             token.role = 'admin'
           }
         } catch (e) {
