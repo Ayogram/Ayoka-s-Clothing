@@ -1,32 +1,38 @@
-import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import nodemailer from 'nodemailer';
 
 export async function POST(req: Request) {
   try {
     const { to, subject, html } = await req.json();
 
-    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'your_resend_api_key') {
-      console.warn("Resend API key is missing. Email skipped, but logic succeeded.")
-      return NextResponse.json({ message: 'Email skipped: No API Key' })
+    // Defaults to the business owner if no ENV variable explicitly defines it
+    const businessEmail = process.env.SMTP_EMAIL || 'ajumobiayomipo@gmail.com';
+    const appPassword = process.env.GMAIL_APP_PASSWORD;
+
+    if (!appPassword || appPassword === 'your_gmail_app_password') {
+      console.warn("GMAIL_APP_PASSWORD is missing in .env.local! Email skipped, but logic succeeded.")
+      return NextResponse.json({ message: 'Email skipped: No Gmail App Password configured' })
     }
 
-    const { data, error } = await resend.emails.send({
-      from: 'Ayoka Concierge <ajumobiayomipo@gmail.com>',
-      to: to || 'ajumobiayomipo@gmail.com',
+    // Secure SMTP connection directly to Google servers bypassing third party blockers
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: businessEmail,
+        pass: appPassword,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: `"Ayoka Concierge" <${businessEmail}>`,
+      to: to || businessEmail, // Fallback to notifying self if 'to' is undefined.
       subject: subject,
       html: html,
     });
 
-    if (error) {
-      console.error("Resend delivery failed:", error)
-      return NextResponse.json({ error }, { status: 400 });
-    }
-
-    return NextResponse.json({ data });
+    return NextResponse.json({ data: info.messageId, success: true });
   } catch (error: any) {
-    console.error("API send-email crash:", error.message)
+    console.error("Nodemailer send-email crash:", error.message)
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
