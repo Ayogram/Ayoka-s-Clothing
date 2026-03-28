@@ -64,7 +64,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-10">
+        <div className="hidden lg:flex items-center space-x-10">
           {navLinks.map((link) => {
             const isActive = pathname === link.href
             return (
@@ -94,7 +94,7 @@ const Navbar = () => {
             {isDarkMode ? <Sun size={20} strokeWidth={1.5} /> : <Moon size={20} strokeWidth={1.5} />}
           </button>
           {session ? (
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden lg:flex items-center space-x-6">
               <Link href="/admin/dashboard" className="text-[10px] uppercase tracking-[0.2em] gold-text font-bold">
                 Portal
               </Link>
@@ -120,7 +120,7 @@ const Navbar = () => {
               </button>
             </div>
           ) : (
-            <Link href="/login" className="hidden md:flex items-center space-x-1 hover:gold-text transition-colors">
+            <Link href="/login" className="hidden lg:flex items-center space-x-1 hover:gold-text transition-colors">
               <User size={20} strokeWidth={1.5} />
               <span className="text-xs uppercase tracking-wider">Login</span>
             </Link>
@@ -133,7 +133,7 @@ const Navbar = () => {
               </span>
             )}
           </Link>
-          <button className="md:hidden flex items-center justify-center w-10 h-10" onClick={() => setIsOpen(!isOpen)}>
+          <button className="lg:hidden flex items-center justify-center w-10 h-10" onClick={() => setIsOpen(!isOpen)}>
             {isOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
@@ -146,7 +146,7 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white dark:bg-black border-t border-gray-100 dark:border-gray-800"
+            className="lg:hidden bg-white dark:bg-black border-t border-gray-100 dark:border-gray-800 shadow-xl"
           >
             <div className="flex flex-col p-6 space-y-4">
               {navLinks.map((link) => {
@@ -165,14 +165,28 @@ const Navbar = () => {
                   </Link>
                 )
               })}
-              <Link
-                href="/login"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center space-x-2 text-lg uppercase tracking-widest py-2"
-              >
-                <User size={20} />
-                <span>Account</span>
-              </Link>
+              {session ? (
+                <>
+                  <Link href="/portal" onClick={() => setIsOpen(false)} className="text-sm uppercase tracking-[0.3em] font-bold py-4 border-b border-gray-50 dark:border-zinc-900 flex justify-between items-center text-gold-500">
+                    <span>Portal Access</span>
+                    <User size={16} />
+                  </Link>
+                  {(session?.user as any)?.role === 'admin' && (
+                    <Link href="/admin/dashboard" onClick={() => setIsOpen(false)} className="text-sm uppercase tracking-[0.3em] font-bold py-4 border-b border-gray-50 dark:border-zinc-900 flex justify-between items-center text-blue-500">
+                      <span>Admin Hub</span>
+                      <User size={16} />
+                    </Link>
+                  )}
+                  <button onClick={() => { setIsOpen(false); signOut(); }} className="text-sm uppercase tracking-[0.3em] font-bold py-4 flex justify-between items-center text-red-500">
+                    <span>Sign Out</span>
+                  </button>
+                </>
+              ) : (
+                <Link href="/login" onClick={() => setIsOpen(false)} className="text-sm uppercase tracking-[0.3em] font-bold py-4 flex justify-between items-center text-zinc-500">
+                  <span>Login / Register</span>
+                  <User size={16} />
+                </Link>
+              )}
             </div>
           </motion.div>
         )}
