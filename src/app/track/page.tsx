@@ -1,6 +1,7 @@
 "use client"
+export const dynamic = "force-dynamic"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import Navbar from "@/components/layout/Navbar"
@@ -9,7 +10,7 @@ import TrackingInput from "@/components/common/TrackingInput"
 import { motion } from "framer-motion"
 import { Package, Truck, CheckCircle2, Clock, MapPin, User, Calendar } from "lucide-react"
 
-export default function TrackPage() {
+function TrackPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const trackingId = searchParams.get("id")
@@ -200,5 +201,21 @@ export default function TrackPage() {
 
       <Footer />
     </main>
+  )
+}
+
+export default function TrackPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex flex-col pt-24">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center bg-gray-50 dark:bg-black">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-gold-500 border-t-transparent" />
+        </div>
+        <Footer />
+      </main>
+    }>
+      <TrackPageContent />
+    </Suspense>
   )
 }
