@@ -2,6 +2,7 @@
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { supabaseAdmin } from "./supabaseAdmin"
+import { randomUUID } from "crypto"
 
 export const authOptions = {
   providers: [
@@ -50,6 +51,7 @@ export const authOptions = {
           if (!profile) {
             await supabaseAdmin.from('profiles').insert([
               { 
+                id: randomUUID(),
                 email: user.email, 
                 full_name: user.name,
                 avatar_url: user.image,

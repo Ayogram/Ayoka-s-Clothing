@@ -56,9 +56,14 @@ const AdminNotifications = ({ onUpdate }: AdminNotificationsProps) => {
     // Optimistic Update: Refresh the local state immediately
     setNotifications(prev => prev.map(notif => notif.id === id ? { ...notif, status: 'read' } : notif))
     
-    const { error } = await supabase.from('notifications').update({ status: 'read' }).eq('id', id)
-    if (error) {
-      console.error("Error marking as read:", error)
+    const res = await fetch('/api/admin/notifications/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'markRead', id })
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      console.error("Error marking as read:", data.error || data.details)
       fetchNotifications() // Restore on error
     } else {
       if (onUpdate) onUpdate()
@@ -109,20 +114,20 @@ const AdminNotifications = ({ onUpdate }: AdminNotificationsProps) => {
   const handleSendReply = async () => {
     if (!replyMessage || !selectedNotification) return
     
-    // 1. Persist reply to database for user portal
-    const { error } = await supabase.from('notifications').insert([
-      {
-        type: 'reply',
-        title: `Reply from Ayoka Concierge`,
-        message: replyMessage,
-        customer_id: selectedNotification.customer_id,
-        sender_name: 'Ayoka Concierge',
-        sender_email: 'concierge@Ayoka.com',
-        status: 'unread'
-      }
-    ])
+    // 1. Persist reply securely using Admin API
+    const res = await fetch('/api/admin/notifications/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        action: 'sendReply', 
+        payload: {
+          message: replyMessage,
+          customer_id: selectedNotification.customer_id
+        }
+      })
+    })
 
-    if (error) {
+    if (!res.ok) {
       alert("Failed to persist reply in database.")
       return
     }

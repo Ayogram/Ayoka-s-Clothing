@@ -271,11 +271,22 @@ export default function AdminDashboard() {
                 <button onClick={async () => {
                   if (!inviteEmail) return
                   setIsInviting(true)
-                  await supabase.from('profiles').upsert({ email: inviteEmail, role: 'admin' }, { onConflict: 'email' })
-                  alert(`Access granted to ${inviteEmail}.`)
-                  setInviteEmail("")
-                  setIsInviting(false)
-                  fetchData()
+                  try {
+                    const res = await fetch('/api/admin/invite', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email: inviteEmail })
+                    })
+                    const data = await res.json()
+                    if (!res.ok) throw new Error(data.error || data.details || "Failed to invite.")
+                    alert(data.message || `Access granted to ${inviteEmail}.`)
+                    setInviteEmail("")
+                  } catch (e: any) {
+                    alert(`Error: ${e.message}`)
+                  } finally {
+                    setIsInviting(false)
+                    fetchData()
+                  }
                 }} disabled={isInviting} className="bg-gold-500 text-white px-8 py-2 text-[10px] uppercase tracking-widest font-bold rounded-lg hover:bg-gold-600 transition-all">Grant</button>
               </div>
             </div>
