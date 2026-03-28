@@ -54,8 +54,15 @@ export const authOptions = {
 
           if (!profile) return null;
 
+          if (profile.status === 'blocked' || profile.status === 'suspended') {
+            throw new Error(`Account ${profile.status}`); // Caught by NextAuth
+          }
+
           return { id: profile.id, email: profile.email, name: profile.full_name, role: profile.role }
-        } catch (e) {
+        } catch (e: any) {
+          if (e.message?.includes('Account blocked') || e.message?.includes('Account suspended')) {
+            throw e;
+          }
           return null
         }
       },
@@ -67,9 +74,13 @@ export const authOptions = {
         try {
           const { data: profile } = await supabaseAdmin
             .from('profiles')
-            .select('id, role')
+            .select('id, role, status')
             .eq('email', user.email)
             .maybeSingle()
+
+          if (profile && (profile.status === 'blocked' || profile.status === 'suspended')) {
+            return false; // Reject sign in
+          }
 
           if (!profile) {
             // First create matching identity in auth.users to satisfy foreign_key constraints

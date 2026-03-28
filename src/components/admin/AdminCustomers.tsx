@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
-import { User, Shield, ShieldAlert, Search, MoreVertical } from "lucide-react"
+import { User, Shield, ShieldAlert, Search, MoreVertical, Ban, CheckCircle, X } from "lucide-react"
+import Avatar from "@/components/ui/Avatar"
 
 export default function AdminCustomers() {
   const [customers, setCustomers] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState("")
+  const [selectedCustomer, setSelectedCustomer] = useState<any | null>(null)
 
   useEffect(() => {
     fetchCustomers()
@@ -143,9 +145,12 @@ export default function AdminCustomers() {
             ) : filteredCustomers.map((c) => (
               <tr key={c.id} className="border-b border-zinc-50 dark:border-zinc-900 last:border-0 group hover:bg-zinc-50 dark:hover:bg-zinc-900/20 transition-colors">
                 <td className="p-6">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold tracking-widest uppercase">{c.full_name || 'Anonymous User'}</span>
-                    <span className="text-[10px] text-zinc-500 lowercase tracking-wider">{c.email}</span>
+                  <div className="flex items-center space-x-4">
+                    <Avatar src={c.avatar_url} name={c.full_name} size={32} className="hidden sm:flex" />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold tracking-widest uppercase">{c.full_name || 'Anonymous User'}</span>
+                      <span className="text-[10px] text-zinc-500 lowercase tracking-wider">{c.email}</span>
+                    </div>
                   </div>
                 </td>
                 <td className="p-6 text-[10px] uppercase tracking-widest text-zinc-500">
@@ -162,29 +167,11 @@ export default function AdminCustomers() {
                  <td className="p-6 text-right">
                    <div className="flex items-center justify-end space-x-6">
                      <button 
-                       onClick={() => alert(`CUSTOMER PROFILE OVERVIEW\n------------------\nName: ${c.full_name}\nEmail: ${c.email}\nOrders: ${c.order_count || 'N/A'}\nLifetime Value: ₦${c.total_spent?.toLocaleString() || 0}\nJoined: ${new Date(c.created_at).toLocaleDateString()}`)}
+                       onClick={() => setSelectedCustomer(c)}
                        className="text-[9px] uppercase tracking-widest font-bold text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
                      >
-                       Perf. Modal
+                       Manage
                      </button>
-                     {c.status !== 'guest' && (
-                       c.status === 'active' ? (
-                          <div className="flex space-x-4">
-                           <button 
-                             onClick={() => handleStatusChange(c.id, 'suspended')} 
-                             className="text-[9px] uppercase tracking-widest font-bold text-zinc-400 hover:text-gold-500 transition-colors flex items-center space-x-2"
-                           >
-                             <Shield size={14} />
-                             <span className="hidden md:inline">Suspend</span>
-                           </button>
-                          </div>
-                       ) : (
-                          <button onClick={() => handleStatusChange(c.id, 'active')} className="text-[9px] uppercase tracking-widest font-bold gold-text flex items-center space-x-2">
-                            <ShieldAlert size={14} />
-                            <span>Unsuspend</span>
-                          </button>
-                       )
-                     )}
                      <button 
                        onClick={() => handleDeleteCustomer(c.id)}
                        className="text-[9px] uppercase tracking-widest font-bold text-red-100 hover:text-red-500 transition-colors"
@@ -198,6 +185,91 @@ export default function AdminCustomers() {
           </tbody>
         </table>
       </div>
+      {/* Customer Full Management Modal */}
+      {selectedCustomer && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-black w-full max-w-lg p-8 border border-zinc-200 dark:border-zinc-800 shadow-2xl relative animate-in zoom-in-95 duration-200">
+            <button 
+              onClick={() => setSelectedCustomer(null)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
+            >
+              <X size={20} />
+            </button>
+            
+            <div className="flex flex-col items-center text-center mt-2 mb-8">
+              <Avatar src={selectedCustomer.avatar_url} name={selectedCustomer.full_name} size={64} className="mb-4 text-xl border-2 border-zinc-100 dark:border-zinc-800" />
+              <h3 className="text-2xl font-serif italic mb-1">{selectedCustomer.full_name || 'Anonymous User'}</h3>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 mb-4">{selectedCustomer.email}</p>
+              <span className={`text-[9px] uppercase tracking-widest font-bold px-3 py-1 rounded-full ${
+                 selectedCustomer.status === 'active' ? 'bg-green-500/10 text-green-500' : 
+                 selectedCustomer.status === 'suspended' ? 'bg-gold-500/10 text-gold-500' : 
+                 selectedCustomer.status === 'blocked' ? 'bg-red-500/10 text-red-500' : 'bg-zinc-500/10 text-zinc-500'
+               }`}>
+                 {selectedCustomer.status}
+               </span>
+            </div>
+
+            <div className="space-y-4 mb-8 text-[11px] uppercase tracking-widest text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900/50 p-6">
+              <div className="flex justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2">
+                <span>Joined Date</span>
+                <span className="text-black dark:text-white font-bold">{new Date(selectedCustomer.created_at).toLocaleDateString()}</span>
+              </div>
+              <div className="flex justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2">
+                <span>Total Orders</span>
+                <span className="text-black dark:text-white font-bold">{selectedCustomer.order_count || 0}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Lifetime Value</span>
+                <span className="text-black dark:text-white font-bold">₦{selectedCustomer.total_spent?.toLocaleString() || 0}</span>
+              </div>
+            </div>
+
+            {selectedCustomer.status !== 'guest' && (
+              <div className="flex flex-wrap gap-4 justify-center">
+                {selectedCustomer.status !== 'blocked' && (
+                  <button 
+                    onClick={() => { handleStatusChange(selectedCustomer.id, 'blocked'); setSelectedCustomer({...selectedCustomer, status: 'blocked'}) }}
+                    className="flex-1 min-w-[120px] bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-colors py-3 px-4 text-[10px] uppercase tracking-widest font-bold flex items-center justify-center space-x-2"
+                  >
+                    <Ban size={14} /> <span>Block</span>
+                  </button>
+                )}
+                {selectedCustomer.status === 'blocked' && (
+                  <button 
+                    onClick={() => { handleStatusChange(selectedCustomer.id, 'active'); setSelectedCustomer({...selectedCustomer, status: 'active'}) }}
+                    className="flex-1 min-w-[120px] bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-colors py-3 px-4 text-[10px] uppercase tracking-widest font-bold flex items-center justify-center space-x-2"
+                  >
+                    <CheckCircle size={14} /> <span>Unblock</span>
+                  </button>
+                )}
+                {selectedCustomer.status === 'active' && (
+                  <button 
+                    onClick={() => { handleStatusChange(selectedCustomer.id, 'suspended'); setSelectedCustomer({...selectedCustomer, status: 'suspended'}) }}
+                    className="flex-1 min-w-[120px] bg-gold-500/10 text-gold-500 hover:bg-gold-500 hover:text-white transition-colors py-3 px-4 text-[10px] uppercase tracking-widest font-bold flex items-center justify-center space-x-2"
+                  >
+                    <ShieldAlert size={14} /> <span>Suspend</span>
+                  </button>
+                )}
+                {selectedCustomer.status === 'suspended' && (
+                  <button 
+                    onClick={() => { handleStatusChange(selectedCustomer.id, 'active'); setSelectedCustomer({...selectedCustomer, status: 'active'}) }}
+                    className="flex-1 min-w-[120px] bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-colors py-3 px-4 text-[10px] uppercase tracking-widest font-bold flex items-center justify-center space-x-2"
+                  >
+                    <CheckCircle size={14} /> <span>Unsuspend</span>
+                  </button>
+                )}
+              </div>
+            )}
+            
+            {selectedCustomer.status === 'guest' && (
+              <div className="text-center py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+                <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Actions Limited</p>
+                <p className="text-[9px] uppercase tracking-wide text-zinc-400 mt-2">Guest profiles cannot be blocked or suspended</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
