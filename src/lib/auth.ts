@@ -49,9 +49,18 @@ export const authOptions = {
             .maybeSingle()
 
           if (!profile) {
+            // First create matching identity in auth.users to satisfy foreign_key constraints
+            const { data: authData } = await supabaseAdmin.auth.admin.createUser({
+              email: user.email,
+              email_confirm: true,
+              password: randomUUID() // Dummy password
+            })
+
+            const finalId = authData?.user?.id || randomUUID();
+
             await supabaseAdmin.from('profiles').insert([
               { 
-                id: randomUUID(),
+                id: finalId,
                 email: user.email, 
                 full_name: user.name,
                 avatar_url: user.image,

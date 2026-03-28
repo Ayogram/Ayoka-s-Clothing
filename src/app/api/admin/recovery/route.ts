@@ -32,10 +32,19 @@ export async function GET(req: Request) {
       })
     }
 
+    // Ensure auth identity exists for foreign key constraint
+    const { data: authData } = await supabaseAdmin.auth.admin.createUser({
+      email: email,
+      email_confirm: true,
+      password: randomUUID()
+    })
+
+    const finalId = authData?.user?.id || randomUUID()
+
     // Insert new profile
     const { data: newProfile, error } = await supabaseAdmin.from('profiles').insert([
       { 
-        id: randomUUID(),
+        id: finalId,
         email: email, 
         full_name: name || "Recovered Admin",
         avatar_url: image || null,

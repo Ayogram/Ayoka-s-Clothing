@@ -38,10 +38,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, message: "Role upgraded to admin." })
     }
 
-    // Create new admin profile placeholder
+    // Create new admin profile placeholder by creating auth.users identity first
+    const { data: authData } = await supabaseAdmin.auth.admin.createUser({
+      email: email,
+      email_confirm: true,
+      password: randomUUID()
+    })
+
+    const finalId = authData?.user?.id || randomUUID()
+
     const { error: insertError } = await supabaseAdmin.from('profiles').insert([
       {
-        id: randomUUID(),
+        id: finalId,
         email: email,
         full_name: "Invited Admin",
         role: "admin"
