@@ -82,6 +82,21 @@ export default function ContactPage() {
         console.warn("Email notification skipped/failed, but message is in inbox.")
       }
 
+      // 5. Trigger Gmail Receipt to Customer
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: formData.email,
+            subject: `Ayoka Concierge: We've received your message`,
+            html: `<div style="font-family: serif; padding: 30px; border: 1px solid #d4af37; background: #fff;"><h2 style="font-style: italic; color: #000;">Message Received</h2><p>Dear ${formData.fullName},</p><p>We have successfully received your ${formData.type}. Our concierge team typically responds within 2-4 business hours.</p><p><br/><strong>Your Message:</strong><br/>${formData.message}</p></div>`
+          })
+        })
+      } catch (err) {
+        console.warn("User receipt failed.")
+      }
+
       setSubmitted(true)
     } catch (error: any) {
       console.error("General error:", error)

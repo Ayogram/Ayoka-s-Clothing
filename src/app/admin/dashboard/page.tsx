@@ -170,6 +170,19 @@ export default function AdminDashboard() {
         } catch (e) {
           console.warn("Gmail alert dispatch failed.")
         }
+
+        // 5. Mirror to Admin
+        try {
+          await fetch('/api/send-email', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({
+               to: 'ajumobiayomipo@gmail.com',
+               subject: `[LOG] Order Status Changed: ${newStatus}`,
+               html: `<p>Order #${selectedOrder.transaction_id || selectedOrder.id} has been transitioned to <strong>${newStatus.replace('_', ' ').toUpperCase()}</strong>.</p>`
+             })
+          })
+        } catch (e) {}
       }
 
       await fetchData()

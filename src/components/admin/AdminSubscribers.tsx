@@ -106,6 +106,21 @@ const AdminSubscribers = () => {
         }
       }
 
+      // 5. Send Summary Email to Admin
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: 'ajumobiayomipo@gmail.com',
+            subject: `[SENT] Broadcast: ${broadcast.title}`,
+            html: `<p>A broadcast message was successfully sent to ${subscribers.length} Inner Circle members.</p><hr/><p><strong>Broadcast Content:</strong></p><p>${broadcast.message}</p>`
+          })
+        })
+      } catch (e) {
+        console.warn(`Failed to send summary email to admin`)
+      }
+
       alert(`Broadcast successful. Message sent to ${subscribers.length} elite members.`)
       setShowBroadcastModal(false)
       setBroadcast({ title: "", message: "" })

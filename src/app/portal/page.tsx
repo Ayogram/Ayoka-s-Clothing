@@ -207,6 +207,31 @@ function UserPortalContent() {
 
     if (!error) {
       alert("Your message has been sent to our desk. We will respond shortly.")
+      
+      // Notify Admin
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: 'ajumobiayomipo@gmail.com',
+          subject: `Ayoka Support [New]: ${complaint.title}`,
+          html: `<p>A new support request has arrived from <strong>${session?.user?.name || 'A customer'}</strong> (${session?.user?.email}).</p><p><strong>Message:</strong> ${complaint.message}</p>`
+        })
+      }).catch(() => {})
+
+      // Notify Customer
+      if (session?.user?.email) {
+        fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: session.user.email,
+            subject: `Ayoka Concierge: Support Ticket Received`,
+            html: `<div style="font-family: serif; padding: 30px; border: 1px solid #d4af37; background: #fff;"><h2 style="font-style: italic; color: #000;">Support Request Logged</h2><p>Dear ${session.user.name},</p><p>Your ticket "<strong>${complaint.title}</strong>" has been successfully received by our concierge desk. We will review it shortly and respond.</p></div>`
+          })
+        }).catch(() => {})
+      }
+
       setComplaint({ title: "", message: "" })
     }
     setIsSubmitting(false)
