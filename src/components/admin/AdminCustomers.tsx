@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
 import { User, Shield, ShieldAlert, Search, MoreVertical, Ban, CheckCircle, X } from "lucide-react"
 import Avatar from "@/components/ui/Avatar"
+import { getAdminCustomersAction, updateCustomerStatusAction, deleteCustomerAction } from "@/lib/adminCustomersActions"
 
 export default function AdminCustomers() {
   const [customers, setCustomers] = useState<any[]>([])
@@ -18,18 +18,8 @@ export default function AdminCustomers() {
   const fetchCustomers = async () => {
     setIsLoading(true)
     try {
-      // 1. Fetch Registered Profiles
-      const { data: profiles, error: pError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false })
-      
-      // 2. Fetch ALL Orders for stat aggregation
-      const { data: orders, error: oError } = await supabase
-        .from('orders')
-        .select('customer_id, contact_number, total_amount, created_at')
-
-      if (pError || oError) throw pError || oError
+      // Fetch Profiles and Orders securely as admin
+      const { profiles, orders } = await getAdminCustomersAction()
 
       const profileList = profiles || []
       const customerStats: Record<string, { total: number, count: number }> = {}
@@ -76,25 +66,23 @@ export default function AdminCustomers() {
   }
 
   const handleStatusChange = async (id: string, newStatus: string) => {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ status: newStatus })
-      .eq('id', id)
-    
-    if (!error) {
+    try {
+      await updateCustomerStatusAction(id, newStatus)
       alert(`Customer status updated to ${newStatus}`)
       fetchCustomers()
+    } catch (error: any) {
+      alert(`Error updating customer: ${error.message}`)
     }
   }
 
   const handleDeleteCustomer = async (id: string) => {
     if (!confirm("Are you absolutely sure you want to remove this client? This will delete their profile data permanently.")) return
     
-    const { error } = await supabase.from('profiles').delete().eq('id', id)
-    if (!error) {
+    try {
+      await deleteCustomerAction(id)
       alert("Customer record deleted successfully.")
       fetchCustomers()
-    } else {
+    } catch (error: any) {
       alert(`Error deleting customer: ${error.message}`)
     }
   }
