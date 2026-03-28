@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
-import { MOCK_PRODUCTS, Product } from "@/lib/types"
+import { supabase } from "@/lib/supabase"
+import { Product } from "@/lib/types"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { ShoppingBag, ChevronLeft, ChevronRight, Truck, ShieldCheck, RefreshCcw, Check } from "lucide-react"
@@ -13,7 +14,8 @@ import { useCart } from "@/lib/CartContext"
 export default function ProductDetailPage() {
   const { id } = useParams()
   const router = useRouter()
-  const product = MOCK_PRODUCTS.find((p) => p.id === id) as Product
+  const [product, setProduct] = useState<Product | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const { addToCart } = useCart()
 
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
@@ -21,20 +23,52 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
 
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setIsLoading(true)
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single()
+      
+      if (data) {
+        setProduct(data)
+        if (!data.sizes || data.sizes.length === 0) {
+          setSelectedSize('Standard')
+        }
+      }
+      setIsLoading(false)
+    }
+    if (id) fetchProduct()
+  }, [id])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
+        <div className="animate-pulse space-y-8 text-center">
+           <div className="w-12 h-12 border-4 border-gold-500 border-t-transparent rounded-full animate-spin mx-auto" />
+           <p className="text-[10px] uppercase tracking-[0.4em] gold-text">Authenticating Piece...</p>
+        </div>
+      </div>
+    )
+  }
+
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
         <div className="text-center space-y-4">
-          <h2 className="text-2xl font-serif">Piece Not Found</h2>
-          <button onClick={() => router.push("/shop")} className="text-gold-500 uppercase tracking-widest text-sm border-b border-gold-500">
-            Return to Shop
+          <h2 className="text-2xl font-serif italic text-black dark:text-white">Piece Not Found</h2>
+          <p className="text-xs text-zinc-500 uppercase tracking-widest pb-4">This masterpiece may have been moved or archived.</p>
+          <button onClick={() => router.push("/shop")} className="text-gold-500 uppercase tracking-widest text-xs border-b border-gold-500 pb-1">
+            Return to Collection
           </button>
         </div>
       </div>
     )
   }
 
-  const allImages = [product.mainImage, ...product.images]
+  const allImages = [product.main_image, ...(product.images || [])].filter(Boolean)
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -145,19 +179,32 @@ export default function ProductDetailPage() {
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-3">
-                    {product.sizes.map((size) => (
+                    {Array.isArray(product.sizes) && product.sizes.length > 0 ? (
+                      product.sizes.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`min-w-[3.5rem] h-14 px-4 flex items-center justify-center border text-[10px] font-bold uppercase tracking-widest transition-all duration-300 ${
+                            selectedSize === size
+                              ? "border-gold-500 bg-gold-500 text-white shadow-lg shadow-gold-500/20"
+                              : "border-gray-200 dark:border-zinc-800 text-zinc-500 hover:border-gold-500"
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))
+                    ) : (
                       <button
-                        key={size}
-                        onClick={() => setSelectedSize(size)}
-                        className={`w-14 h-14 flex items-center justify-center border text-sm transition-all duration-300 ${
-                          selectedSize === size
-                            ? "border-gold-500 bg-gold-500 text-white shadow-lg shadow-gold-500/20"
-                            : "border-gray-200 dark:border-zinc-800 hover:border-gold-500"
+                        onClick={() => setSelectedSize('Standard')}
+                        className={`px-8 h-14 flex items-center justify-center border text-[10px] uppercase tracking-widest transition-all duration-300 ${
+                          selectedSize === 'Standard'
+                            ? "border-gold-500 bg-gold-500 text-white shadow-lg shadow-gold-500/20 font-bold"
+                            : "border-gray-200 dark:border-zinc-800 text-zinc-500 hover:border-gold-500"
                         }`}
                       >
-                        {size}
+                        Standard Size
                       </button>
-                    ))}
+                    )}
                   </div>
                 </div>
 
@@ -199,7 +246,7 @@ export default function ProductDetailPage() {
                     <Truck size={20} className="gold-text" />
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-tighter">Delivery</p>
-                      <p className="text-[10px] text-gray-500">{product.deliveryDays} Business Days</p>
+                      <p className="text-[10px] text-gray-500">{product.delivery_days || 3} Business Days</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">

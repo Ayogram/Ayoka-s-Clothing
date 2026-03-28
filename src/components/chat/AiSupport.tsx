@@ -30,17 +30,27 @@ const AiSupport = () => {
 
     // AI Response Logic
     setTimeout(() => {
-      let botResponse = "I'm sorry, I couldn't quite understand that. Would you like to speak with a human representative?"
+      let botResponse = "I am a style assistant specialized in Ayoka couture. For direct human support or custom orders, please click the link below to reach us on WhatsApp: [Chat on WhatsApp](https://wa.me/2347039426216)"
       
       const query = input.toLowerCase()
       if (query.includes("status") || query.includes("track")) {
-        botResponse = "You can track your order in real-time on our 'Track Selection' page using your unique Tracking ID. Need help finding it?"
-      } else if (query.includes("payment") || query.includes("pay")) {
-        botResponse = "We currently accept Direct Bank Transfers for all luxury selections. Details are provided during the checkout process. Payment confirmation usually takes under 5 minutes."
-      } else if (query.includes("delivery") || query.includes("time") || query.includes("days")) {
-        botResponse = "Our pieces are crafted with care. Standard delivery takes 3-7 business days depending on the complexity of the garment. You'll see the exact estimate on your order confirmation."
+        botResponse = "You can track your real-time selections on our 'Track Selection' page using your unique Tracking ID (AYK-...). Need help finding it?"
+      } else if (query.includes("payment") || query.includes("pay") || query.includes("bank")) {
+        botResponse = "Ayoka accepts Direct Bank Transfers for all luxury pieces. Specific account details are provided dynamically during checkout. We confirm all payments within 5-10 minutes."
+      } else if (query.includes("delivery") || query.includes("time") || query.includes("days") || query.includes("shipping")) {
+        botResponse = "Our master tailors craft each piece with precision. Standard delivery within Nigeria takes 3-7 business days, while international shipping is usually 7-14 days."
+      } else if (query.includes("who") || query.includes("founder") || query.includes("owner") || query.includes("designer")) {
+        botResponse = "Ayoka was founded by Ogunlana Dammie Omolara, our Creative Director, who envisioned a fusion of traditional African heritage with modern luxury silhouettes."
+      } else if (query.includes("about") || query.includes("what is") || query.includes("ayoka")) {
+        botResponse = "Ayoka is a luxury fashion concierge that redefines African style through artisan quality, noble fabrics (like hand-woven Aso-Oke), and joyful service. We crafted each piece to bring you joy."
+      } else if (query.includes("where") || query.includes("location") || query.includes("address")) {
+        botResponse = "Our luxury atelier is based in the heart of Lagos, Nigeria. For specific showroom visits or bespoke fittings, please reach out to us at +234 703 942 6216."
+      } else if (query.includes("contact") || query.includes("phone") || query.includes("help") || query.includes("talk") || query.includes("human")) {
+        botResponse = "I can guide you through our collection, but for personal concierge service, please reach us on WhatsApp here: [Message Us](https://wa.me/2347039426216)"
+      } else if (query.includes("category") || query.includes("shirts") || query.includes("agbada") || query.includes("trousers")) {
+        botResponse = "We offer a curated selection including Bespoke Agbadas, Silk Shirts, Linen Trousers, and Evening Outerwear. You can find them all in our 'Shop' section."
       } else if (query.includes("hi") || query.includes("hello")) {
-        botResponse = "Hello! I am here to help you navigate our collection. Do you have questions about a specific piece or an existing order?"
+        botResponse = "Hello! I am your Ayoka Style Concierge. I can tell you about our heritage, help you with your order status, or explain our artisan process. How may I assist you today?"
       }
 
       setMessages((prev) => [...prev, { role: "bot", content: botResponse }])

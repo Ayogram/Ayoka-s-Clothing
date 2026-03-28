@@ -26,7 +26,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Load cart from localStorage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem("ayoka_cart")
+    const savedCart = localStorage.getItem("Ayoka_cart")
     if (savedCart) {
       try {
         setCart(JSON.parse(savedCart))
@@ -38,7 +38,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Save cart to localStorage on change
   useEffect(() => {
-    localStorage.setItem("ayoka_cart", JSON.stringify(cart))
+    localStorage.setItem("Ayoka_cart", JSON.stringify(cart))
   }, [cart])
 
   const addToCart = (product: Product, size: string, quantity: number) => {

@@ -1,5 +1,9 @@
 "use client"
 
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
+import { Product } from "@/lib/types"
+import ProductCard from "@/components/product/ProductCard"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
 import TrackingInput from "@/components/common/TrackingInput"
@@ -8,6 +12,45 @@ import Link from "next/link"
 import Image from "next/image"
 
 export default function Home() {
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+  const [email, setEmail] = useState("")
+  const [isSubscribing, setIsSubscribing] = useState(false)
+
+  const handleSubscribe = async () => {
+    if (!email || !email.includes('@')) {
+      alert("Please enter a valid elite email address.")
+      return
+    }
+    setIsSubscribing(true)
+    try {
+      const { error } = await supabase.from('newsletter').insert([{ email }])
+      if (error) {
+        if (error.code === '23505') alert("You are already part of the Inner Circle.")
+        else throw error
+      } else {
+        alert("Welcome to the Inner Circle. Expect excellence in your inbox.")
+        setEmail("")
+      }
+    } catch (e: any) {
+      console.error(e)
+      alert("Registration failed. Please try again later.")
+    } finally {
+      setIsSubscribing(false)
+    }
+  }
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .limit(3)
+        .order('created_at', { ascending: false })
+      if (data) setFeaturedProducts(data)
+    }
+    fetchFeatured()
+  }, [])
+
   return (
     <main className="min-h-screen flex flex-col">
       <Navbar />
@@ -38,7 +81,7 @@ export default function Home() {
               CRAFTED TO <br /> BRING YOU JOY
             </h1>
             <p className="text-lg md:text-xl text-gray-200 font-sans tracking-wide max-w-2xl mx-auto mb-8 font-light">
-              Experience the pinnacle of luxury with our hand-tailored garments. 
+              Experience the pinnacle of luxury fashion with our hand-tailored garments. 
               Designed for those who appreciate the finer things in life.
             </p>
             <div className="flex flex-col md:flex-row items-center justify-center gap-4">
@@ -82,41 +125,30 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
-            {/* Placeholder Products */}
-            {[1, 2, 3].map((item) => (
-              <motion.div
-                key={item}
-                className="luxury-card group"
-              >
-                <div className="relative aspect-[3/4] overflow-hidden bg-gray-50 dark:bg-zinc-950">
-                  <Image
-                    src={`https://images.unsplash.com/photo-${item === 1 ? '1539109136881-3be0616acf4b' : item === 2 ? '1509631179647-0177331693ae' : '1515886657613-9f3515b0c78f'}?q=80&w=1000&auto=format&fit=crop`}
-                    alt="Featured Product"
-                    fill
-                    className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                  />
-                  <div className="absolute top-6 right-6 bg-white/90 dark:bg-black/90 backdrop-blur-md px-4 py-2 text-[9px] uppercase tracking-[0.2em] font-bold">
-                    Available
-                  </div>
-                </div>
-                <div className="p-8">
-                  <p className="text-[10px] uppercase tracking-[0.2em] gold-text mb-2 font-bold">New Arrival</p>
-                  <h3 className="text-xl font-serif mb-4 group-hover:gold-text transition-colors italic">Premium Fabric Piece</h3>
-                  <div className="flex justify-between items-center border-t border-gray-100 dark:border-zinc-900 pt-6">
-                    <p className="text-sm font-bold tracking-widest font-sans">₦ 24,500</p>
-                    <Link 
-                      href="/shop"
-                      className="text-[10px] uppercase tracking-[0.2em] font-bold border-b border-black dark:border-white pb-1 hover:gold-text hover:border-gold-500 transition-all"
-                    >
-                      View Piece
-                    </Link>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+            {featuredProducts.length > 0 ? featuredProducts.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            )) : (
+              [1, 2, 3].map((item) => (
+                <div key={item} className="h-96 bg-zinc-50 dark:bg-zinc-900 animate-pulse" />
+              ))
+            )}
           </div>
         </div>
       </section>
+
+      {/* Brand Announcement Bar (Restored Black Line) */}
+      <div className="bg-black py-4 overflow-hidden border-y border-zinc-900">
+        <div className="flex whitespace-nowrap animate-marquee">
+          {[1,2,3,4].map((i) => (
+            <div key={i} className="flex items-center space-x-12 px-6">
+              <span className="text-[10px] uppercase tracking-[0.5em] text-white font-bold">Ayoka's Clothing</span>
+              <span className="text-[10px] uppercase tracking-[0.5em] gold-text font-bold">One Who Brings Joy</span>
+              <span className="text-[10px] uppercase tracking-[0.5em] text-white font-bold">Premium Quality</span>
+              <span className="text-[10px] uppercase tracking-[0.5em] gold-text font-bold">Handmade in Nigeria</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Order Tracking Section */}
       <section className="section-spacing bg-gold-50 dark:bg-zinc-950 relative overflow-hidden">
@@ -150,10 +182,16 @@ export default function Home() {
               <input 
                 type="email" 
                 placeholder="EMAIL ADDRESS" 
-                className="w-full bg-transparent border-b border-black dark:border-white py-3 px-2 text-sm outline-none focus:border-gold-500 transition-colors uppercase tracking-widest"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-transparent border-b border-black dark:border-white py-3 px-2 text-sm outline-none focus:border-gold-500 transition-all uppercase tracking-widest"
               />
-              <button className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 uppercase tracking-widest text-xs font-bold hover:gold-bg hover:text-white transition-all w-full md:w-auto">
-                Subscribe
+              <button 
+                onClick={handleSubscribe}
+                disabled={isSubscribing}
+                className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 uppercase tracking-widest text-xs font-bold hover:gold-bg hover:text-white transition-all w-full md:w-auto disabled:opacity-50"
+              >
+                {isSubscribing ? "Joining..." : "Subscribe"}
               </button>
             </div>
           </div>

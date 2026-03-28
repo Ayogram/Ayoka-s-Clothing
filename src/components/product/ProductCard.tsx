@@ -20,9 +20,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
     >
       <Link href={`/product/${product.id}`} className="block relative aspect-[3/4] overflow-hidden bg-gray-50 dark:bg-zinc-950">
         <Image
-          src={product.mainImage}
+          src={product.main_image}
           alt={product.name}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover transition-transform duration-1000 group-hover:scale-110"
         />
         

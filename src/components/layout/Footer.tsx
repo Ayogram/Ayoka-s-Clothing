@@ -26,17 +26,17 @@ const Footer = () => {
           {/* Brand Section */}
           <div className="space-y-6">
             <div className="flex flex-col">
-              <span className="text-2xl font-serif font-bold tracking-widest gold-text">AYOKA</span>
-              <span className="text-[10px] tracking-[0.2em] -mt-1 uppercase text-gray-400">Clothings</span>
+              <span className="text-2xl font-serif font-bold tracking-widest gold-text">Ayoka</span>
+              <span className="text-[10px] tracking-[0.2em] -mt-1 uppercase text-gray-400">Clothing</span>
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-              Experience the pinnacle of luxury fashion. "Ayoka" means "one who brings joy", and our garments are crafted to do exactly that.
+            <p className="text-gray-400 text-sm leading-relaxed max-w-xs font-light tracking-wide">
+              Experience the pinnacle of luxury fashion. Ayoka — Crafted To Bring You Joy.
             </p>
             <div className="flex space-x-4">
               <a href="https://web.facebook.com/profile.php?id=61587011774458" target="_blank" rel="noopener noreferrer" className="hover:gold-text transition-colors">
                 <Facebook size={20} strokeWidth={1.5} />
               </a>
-              <a href="https://www.instagram.com/ayokaa.clothings?igsh=N2Q4dXJrNWIybndk" target="_blank" rel="noopener noreferrer" className="hover:gold-text transition-colors">
+              <a href="https://www.instagram.com/Ayoka.Clothing?igsh=N2Q4dXJrNWIybndk" target="_blank" rel="noopener noreferrer" className="hover:gold-text transition-colors">
                 <Instagram size={20} strokeWidth={1.5} />
               </a>
               <a href="https://www.tiktok.com/@ayokaa.clothings" target="_blank" rel="noopener noreferrer" className="hover:gold-text transition-colors">
@@ -106,7 +106,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-gray-900 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] uppercase tracking-widest text-gray-600">
-          <p>© {currentYear} Ayoka's Clothing. All Rights Reserved.</p>
+          <p>© {currentYear} Ayoka. Crafted To Bring You Joy.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-white">Terms of Service</Link>

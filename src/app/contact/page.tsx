@@ -1,17 +1,94 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
+import { supabase } from "@/lib/supabase"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
 import { motion } from "framer-motion"
 import { Mail, Phone, MessageSquare, Send, CheckCircle2 } from "lucide-react"
 
 export default function ContactPage() {
+  const { data: session } = useSession()
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    type: "Order Inquiry",
+    message: ""
+  })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Sync session info if logged in
+  useEffect(() => {
+    if (session?.user) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: session?.user?.name || "",
+        email: session?.user?.email || ""
+      }))
+    }
+  }, [session])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
+    setIsSubmitting(true)
+
+    try {
+      // 1. Prepare Concierge Notification Payload
+      const payload: any = {
+        type: formData.type.includes('Complaint') ? 'complaint' : 
+              formData.type.includes('Inquiry') ? 'contact' : 
+              formData.type.toLowerCase(),
+        title: `Concierge: ${formData.type} from ${formData.fullName}`,
+        message: formData.message,
+        status: 'unread'
+      }
+
+      // 2. These fields require the SQL script to be run in Supabase Dashboard
+      const extendedPayload = {
+        ...payload,
+        sender_name: formData.fullName,
+        sender_email: formData.email,
+        customer_id: session?.user ? (session.user as any).id : null
+      }
+
+      // 3. Save to Database for Inbox
+      const { error } = await supabase.from('notifications').insert([extendedPayload])
+
+      if (error) {
+        console.error("Supabase Error:", error.message)
+        // Check if the error is missing columns
+        if (error.message.includes('Could not find') || error.message.includes('column')) {
+           alert("DATABASE SYNC REQUIRED: Please run the SQL script provided in the Implementation Plan to unlock the messaging system.")
+        } else {
+           throw new Error("Failed to reach our concierge database.")
+        }
+        return
+      }
+
+      // 4. Trigger Gmail Notification to Business Owner
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: 'dammie2k@gmail.com',
+            subject: `Ayoka Concierge [New]: ${formData.fullName}`,
+            html: `<p>A new ${formData.type} has arrived from <strong>${formData.fullName}</strong> (${formData.email}).</p><p>Check your Admin Inbox for details.</p>`
+          })
+        })
+      } catch (err) {
+        console.warn("Email notification skipped/failed, but message is in inbox.")
+      }
+
+      setSubmitted(true)
+    } catch (error: any) {
+      console.error("General error:", error)
+      alert(error.message || "Failed to send message. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -80,7 +157,7 @@ export default function ContactPage() {
                 <h4 className="text-2xl font-serif italic text-gold-500">Visit Our Studio</h4>
                 <p className="text-sm font-light leading-loose text-zinc-300 uppercase tracking-widest">
                   Experience the fabrics in person. By appointment only. <br />
-                  Ikotun, Lagos, Nigeria.
+                  34, Aderibigbe street, Surulere.
                 </p>
               </div>
             </div>
@@ -91,15 +168,33 @@ export default function ContactPage() {
                 <form onSubmit={handleSubmit} className="space-y-10">
                   <div className="space-y-4">
                     <label className="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-500">Full Name</label>
-                    <input required type="text" className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 focus:border-gold-500 outline-none py-4 text-base transition-colors placeholder:text-zinc-300" placeholder="Your name" />
+                    <input 
+                      required 
+                      type="text" 
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                      className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 focus:border-gold-500 outline-none py-4 text-base transition-colors placeholder:text-zinc-300" 
+                      placeholder="Your name" 
+                    />
                   </div>
                   <div className="space-y-4">
                     <label className="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-500">Email Address</label>
-                    <input required type="email" className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 focus:border-gold-500 outline-none py-4 text-base transition-colors placeholder:text-zinc-300" placeholder="name@example.com" />
+                    <input 
+                      required 
+                      type="email" 
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 focus:border-gold-500 outline-none py-4 text-base transition-colors placeholder:text-zinc-300" 
+                      placeholder="name@example.com" 
+                    />
                   </div>
                   <div className="space-y-4">
                     <label className="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-500">Message Type</label>
-                    <select className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 focus:border-gold-500 outline-none py-4 text-xs font-bold uppercase tracking-[0.2em] transition-colors cursor-pointer appearance-none">
+                    <select 
+                      value={formData.type}
+                      onChange={(e) => setFormData({...formData, type: e.target.value})}
+                      className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 focus:border-gold-500 outline-none py-4 text-xs font-bold uppercase tracking-[0.2em] transition-colors cursor-pointer appearance-none"
+                    >
                       <option>Order Inquiry</option>
                       <option>Bespoke Request</option>
                       <option>Complaints</option>
@@ -108,10 +203,21 @@ export default function ContactPage() {
                   </div>
                   <div className="space-y-4">
                     <label className="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-500">Your Inquiry</label>
-                    <textarea required rows={5} className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 focus:border-gold-500 outline-none py-4 text-base transition-colors resize-none placeholder:text-zinc-300" placeholder="How can we bring you joy?" />
+                    <textarea 
+                      required 
+                      rows={5} 
+                      value={formData.message}
+                      onChange={(e) => setFormData({...formData, message: e.target.value})}
+                      className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 focus:border-gold-500 outline-none py-4 text-base transition-colors resize-none placeholder:text-zinc-300" 
+                      placeholder="How can we bring you joy?" 
+                    />
                   </div>
-                  <button type="submit" className="w-full bg-black dark:bg-white text-white dark:text-black py-6 uppercase tracking-[0.4em] font-bold text-[10px] flex items-center justify-center space-x-4 hover:bg-gold-500 hover:text-white transition-all duration-700 mt-12">
-                    <span>Send Message</span>
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="w-full bg-black dark:bg-white text-white dark:text-black py-6 uppercase tracking-[0.4em] font-bold text-[10px] flex items-center justify-center space-x-4 hover:bg-gold-500 hover:text-white transition-all duration-700 mt-12 disabled:opacity-50"
+                  >
+                    <span>{isSubmitting ? "Sending..." : "Send Message"}</span>
                     <Send size={16} strokeWidth={1.5} />
                   </button>
                 </form>

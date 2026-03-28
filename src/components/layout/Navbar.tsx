@@ -6,8 +6,11 @@ import { ShoppingCart, User, Menu, X, Search, Moon, Sun } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "@/lib/CartContext"
 import { usePathname } from "next/navigation"
+import { useSession, signOut } from "next-auth/react"
+import Avatar from "@/components/ui/Avatar"
 
 const Navbar = () => {
+  const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -56,8 +59,8 @@ const Navbar = () => {
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex flex-col items-center">
-          <span className="text-2xl font-serif font-bold tracking-widest gold-text">AYOKA</span>
-          <span className="text-[10px] tracking-[0.2em] -mt-1 uppercase">Clothings</span>
+          <span className="text-2xl font-serif font-bold tracking-widest gold-text">Ayoka</span>
+          <span className="text-[10px] tracking-[0.2em] -mt-1 uppercase text-zinc-500">Clothing</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -87,16 +90,41 @@ const Navbar = () => {
 
         {/* Icons */}
         <div className="flex items-center space-x-4 md:space-x-6">
-          <button className="hover:gold-text transition-colors">
-            <Search size={20} strokeWidth={1.5} />
-          </button>
           <button onClick={toggleTheme} className="hover:gold-text transition-colors">
             {isDarkMode ? <Sun size={20} strokeWidth={1.5} /> : <Moon size={20} strokeWidth={1.5} />}
           </button>
-          <Link href="/login" className="hidden md:flex items-center space-x-1 hover:gold-text transition-colors">
-            <User size={20} strokeWidth={1.5} />
-            <span className="text-xs uppercase tracking-wider">Login</span>
-          </Link>
+          {session ? (
+            <div className="hidden md:flex items-center space-x-6">
+              <Link href="/admin/dashboard" className="text-[10px] uppercase tracking-[0.2em] gold-text font-bold">
+                Portal
+              </Link>
+              <Link href="/portal" className="flex items-center space-x-3 group">
+                <Avatar 
+                  src={session.user?.image} 
+                  name={session.user?.name} 
+                  size={32} 
+                  className="group-hover:border-gold-500 transition-all" 
+                />
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 group-hover:gold-text transition-all">
+                    {session.user?.name?.split(' ')[0] || 'Account'}
+                  </span>
+                  <span className="text-[8px] uppercase tracking-tighter text-zinc-400">{(session.user as any)?.role || 'User'}</span>
+                </div>
+              </Link>
+              <button 
+                onClick={() => signOut()}
+                className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-400 hover:text-red-500 transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <Link href="/login" className="hidden md:flex items-center space-x-1 hover:gold-text transition-colors">
+              <User size={20} strokeWidth={1.5} />
+              <span className="text-xs uppercase tracking-wider">Login</span>
+            </Link>
+          )}
           <Link href="/cart" className="relative hover:gold-text transition-colors">
             <ShoppingCart size={20} strokeWidth={1.5} />
             {totalItems > 0 && (

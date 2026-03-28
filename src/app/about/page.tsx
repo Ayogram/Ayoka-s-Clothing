@@ -35,11 +35,11 @@ export default function AboutPage() {
               viewport={{ once: true }}
               className="space-y-12"
             >
-              <div className="pt-8 border-t border-gray-100 dark:border-zinc-900">
-                <blockquote className="text-2xl md:text-3xl font-serif italic text-black dark:text-white leading-relaxed">
-                  "Ayoka's Clothing was born from a vision to redefine luxury African fashion. We combine traditional craftsmanship with modern silhouettes to create timeless pieces that tell a story of elegance and pride."
+              <div className="pt-8 border-t border-zinc-100 dark:border-zinc-900">
+                <blockquote className="text-3xl md:text-4xl font-serif italic text-zinc-900 dark:text-white leading-tight">
+                  "Ayoka was born from a vision to redefine luxury African fashion. We combine traditional craftsmanship with modern silhouettes to create timeless pieces that tell a story of elegance and pride."
                 </blockquote>
-                <p className="mt-6 text-[10px] uppercase tracking-[0.3em] font-bold gold-text">— Ayoka, Creative Director</p>
+                <p className="mt-8 text-[10px] uppercase tracking-[0.4em] font-bold gold-text">— Ogunlana Dammie Omolara, Creative Director</p>
               </div>
             </motion.div>
 
@@ -50,8 +50,8 @@ export default function AboutPage() {
               className="relative aspect-[4/5] bg-gray-100 dark:bg-zinc-900 overflow-hidden shadow-2xl shadow-black/10"
             >
               <Image 
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop" 
-                alt="Ayoka Designer" 
+                src="/owner.png" 
+                alt="Ogunlana Dammie Omolara - Ayoka Designer" 
                 fill 
                 className="object-cover"
               />

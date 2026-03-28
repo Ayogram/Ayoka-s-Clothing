@@ -16,9 +16,15 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Ayoka's Clothing | Premium Fashion Store",
-  description: "Experience luxury fashion with Ayoka's Clothing. Crafted to Bring You Joy.",
+  title: "AYOKAA Clothings | Crafted To Bring You Joy",
+  description: "Experience luxury fashion with AYOKAA Clothings. Premium craftsmanship for the modern elite.",
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  }
 };
+
+import { NextAuthProvider } from "@/components/providers/NextAuthProvider";
 
 export default function RootLayout({
   children,
@@ -29,12 +35,36 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${playfair.variable} ${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-sans">
-        <CartProvider>
-          {children}
-          <AiSupport />
-        </CartProvider>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/logo.png" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const theme = localStorage.getItem('theme');
+                  const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  if (theme === 'dark' || (!theme && supportDarkMode)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col font-sans bg-white dark:bg-black text-black dark:text-white">
+        <NextAuthProvider>
+          <CartProvider>
+            {children}
+            <AiSupport />
+          </CartProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

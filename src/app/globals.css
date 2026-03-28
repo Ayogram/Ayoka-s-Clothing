@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --dark-mode: selector;
   --color-gold-50: #fdfaf1;
   --color-gold-100: #f9f1d9;
   --color-gold-200: #f1e0b0;
@@ -34,6 +35,24 @@
   --gold: #C5A059;
   --gold-light: #1a1a1a;
   --border-subtle: #222222;
+  
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.dark body, 
+.dark main, 
+.dark aside, 
+.dark section,
+.dark .bg-white,
+.dark .bg-zinc-50 {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.dark .border,
+.dark .border-zinc-100 {
+  border-color: #1a1a1a !important;
 }
 
 body {
@@ -103,4 +122,38 @@ h4 { font-size: 1.25rem; }
 .hero-overlay {
   background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.5) 100%),
               linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 40%, rgba(0,0,0,0.7) 100%);
+}
+
+/* Theme Transitions */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Global Dark Mode Force (Tailwind 4) */
+@utility dark {
+  content: "";
+}
+
+/* Hide Next.js dev indicator aggressively */
+nextjs-portal,
+[data-nextjs-dev-indicator], 
+button[aria-label="Next.js Dev Indicator"],
+#__next-build-watcher,
+#__next-prerender-indicator,
+.next-dev-indicators,
+[id^="__next-"],
+.nextjs-toast-errors-parent {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
 }

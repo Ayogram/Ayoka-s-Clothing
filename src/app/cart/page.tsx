@@ -62,7 +62,7 @@ export default function CartPage() {
                   className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-8 border-b border-gray-100 dark:border-zinc-900 pb-8 last:border-0"
                 >
                   <div className="relative w-32 aspect-[3/4] overflow-hidden bg-gray-100 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800">
-                    <Image src={item.product.mainImage} alt={item.product.name} fill className="object-cover" />
+                    <Image src={item.product.main_image} alt={item.product.name} fill className="object-cover" />
                   </div>
                   
                   <div className="flex-grow text-center sm:text-left space-y-2">

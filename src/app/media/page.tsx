@@ -14,50 +14,24 @@ const Instagram = ({ size = 20 }: { size?: number }) => (
   </svg>
 )
 
-const MOCK_MEDIA = [
-  {
-    id: "1",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop",
-    caption: "The Spring Collection is here. Experience the flow of linen and the touch of silk.",
-    likes: "1.2k",
-    comments: 45,
-    platform: "Instagram",
-    link: "https://instagram.com"
-  },
-  {
-    id: "2",
-    type: "video",
-    url: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1000&auto=format&fit=crop",
-    caption: "Behind the scenes: The making of the Golden Embroidery Agbada. 40 hours of handiwork.",
-    likes: "3.4k",
-    comments: 128,
-    platform: "TikTok",
-    link: "https://tiktok.com"
-  },
-  {
-    id: "3",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1000&auto=format&fit=crop",
-    caption: "Elegance isn't about being noticed, it's about being remembered. #AyokaClothing",
-    likes: "892",
-    comments: 12,
-    platform: "Facebook",
-    link: "https://facebook.com"
-  },
-  {
-    id: "4",
-    type: "image",
-    url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1000&auto=format&fit=crop",
-    caption: "Classic Silk Shirt in Navy. A staple for every modern man's collection.",
-    likes: "1.1k",
-    comments: 34,
-    platform: "Instagram",
-    link: "https://instagram.com"
-  }
-]
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
 
 export default function MediaPage() {
+  const [media, setMedia] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchMedia = async () => {
+      const { data } = await supabase
+        .from('media')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (data) setMedia(data)
+      setIsLoading(false)
+    }
+    fetchMedia()
+  }, [])
   return (
     <main className="min-h-screen flex flex-col pt-24">
       <Navbar />
@@ -83,7 +57,7 @@ export default function MediaPage() {
 
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-24">
-              {MOCK_MEDIA.map((post, idx) => (
+              {media.map((post, idx) => (
                 <motion.div
                   key={post.id}
                   initial={{ opacity: 0, y: 30 }}
@@ -109,10 +83,14 @@ export default function MediaPage() {
                     </div>
  
                     {/* Platform Tag */}
-                    <div className="absolute top-6 right-6 bg-white/90 dark:bg-black/90 backdrop-blur-md px-4 py-2 flex items-center space-x-3 shadow-xl">
+                    <a 
+                      href={post.link} 
+                      target="_blank" 
+                      className="absolute top-6 right-6 bg-white/90 dark:bg-black/90 backdrop-blur-md px-4 py-2 flex items-center space-x-3 shadow-xl hover:bg-gold-500 hover:text-white transition-all cursor-pointer group/tag"
+                    >
                        <span className="text-[9px] uppercase font-bold tracking-[0.2em]">{post.platform}</span>
-                       <ExternalLink size={12} strokeWidth={1} />
-                    </div>
+                       <ExternalLink size={12} strokeWidth={1} className="group-hover/tag:translate-x-1 transition-transform" />
+                    </a>
                   </div>
  
                   <div className="p-8 space-y-6">
@@ -121,8 +99,8 @@ export default function MediaPage() {
                     </p>
                     <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-zinc-900">
                       <div className="flex items-center space-x-8 text-[9px] uppercase tracking-[0.3em] font-bold text-zinc-400">
-                         <span className="hover:gold-text cursor-pointer transition-colors">{post.likes} Likes</span>
-                         <span className="hover:gold-text cursor-pointer transition-colors">{post.comments} Comments</span>
+                         <a href={post.link} target="_blank" className="hover:gold-text cursor-pointer transition-colors">{post.likes || 0} Likes</a>
+                         <a href={post.link} target="_blank" className="hover:gold-text cursor-pointer transition-colors">{post.comments || 0} Comments</a>
                       </div>
                       <button className="gold-text hover:scale-125 transition-all duration-500">
                         <Send size={20} strokeWidth={1} />
@@ -136,7 +114,7 @@ export default function MediaPage() {
             {/* Load More/Instagram Link */}
             <div className="text-center mt-32">
               <a 
-                href="https://www.instagram.com/ayokaa.clothings" 
+                href="https://www.instagram.com/Ayoka.Clothing" 
                 target="_blank" 
                 className="inline-flex items-center space-x-4 bg-black dark:bg-white text-white dark:text-black px-12 py-5 uppercase tracking-[0.4em] text-[10px] font-bold hover:bg-gold-500 hover:text-white transition-all duration-700 shadow-2xl"
               >

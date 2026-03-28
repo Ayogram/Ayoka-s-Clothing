@@ -6,10 +6,10 @@ export interface Product {
   category: string
   sizes: string[]
   images: string[]
-  mainImage: string
+  main_image: string
   availability: "In Stock" | "Out of Stock" | "Pre-order"
-  deliveryDays: number
-  videoUrl?: string
+  delivery_days: number
+  video_url?: string
 }
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -20,10 +20,10 @@ export const MOCK_PRODUCTS: Product[] = [
     description: "Pure mulberry silk shirt with a refined sheen. Perfect for evening elegance.",
     category: "Shirts",
     sizes: ["S", "M", "L", "XL"],
-    mainImage: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=1000&auto=format&fit=crop",
+    main_image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1000&auto=format&fit=crop",
     images: ["https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1000&auto=format&fit=crop"],
     availability: "In Stock",
-    deliveryDays: 3,
+    delivery_days: 3,
   },
   {
     id: "2",
@@ -32,10 +32,10 @@ export const MOCK_PRODUCTS: Product[] = [
     description: "Hand-embroidered traditional Agbada with premium wool fabric and gold thread detailing.",
     category: "Traditional",
     sizes: ["M", "L", "XL"],
-    mainImage: "https://images.unsplash.com/photo-1548142813-c348350df52b?q=80&w=1000&auto=format&fit=crop",
+    main_image: "https://images.unsplash.com/photo-1548142813-c348350df52b?q=80&w=1000&auto=format&fit=crop",
     images: [],
     availability: "Pre-order",
-    deliveryDays: 7,
+    delivery_days: 7,
   },
   {
     id: "3",
@@ -44,10 +44,10 @@ export const MOCK_PRODUCTS: Product[] = [
     description: "Breathable Italian linen trousers in a contemporary slim cut.",
     category: "Trousers",
     sizes: ["S", "M", "L", "XL"],
-    mainImage: "https://images.unsplash.com/photo-1594932224495-99839ec9dca0?q=80&w=1000&auto=format&fit=crop",
+    main_image: "https://images.unsplash.com/photo-1594932224495-99839ec9dca0?q=80&w=1000&auto=format&fit=crop",
     images: [],
     availability: "In Stock",
-    deliveryDays: 2,
+    delivery_days: 2,
   },
   {
     id: "4",
@@ -56,9 +56,9 @@ export const MOCK_PRODUCTS: Product[] = [
     description: "Deep emerald velvet blazer with silk lapels and custom gold buttons.",
     category: "Outerwear",
     sizes: ["S", "M", "L"],
-    mainImage: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000&auto=format&fit=crop",
+    main_image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000&auto=format&fit=crop",
     images: [],
     availability: "In Stock",
-    deliveryDays: 4,
+    delivery_days: 4,
   },
 ]
