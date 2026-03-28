@@ -88,6 +88,7 @@ export default function AdminDashboard() {
           status: o.status,
           driver_name: o.driver_name,
           driver_number: o.driver_number,
+          payment_receipt: o.payment_receipt,
             date: o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A'
           }
         }))
@@ -124,9 +125,13 @@ export default function AdminDashboard() {
     }
     
     try {
-      // 1. Update Order in DB
-      const { error: updateError } = await supabase.from('orders').update(updateData).eq('id', orderId)
-      if (updateError) throw updateError
+      // 1. Update Order in DB securely via API
+      const res = await fetch('/api/admin/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'updateStatus', orderId, payload: updateData })
+      });
+      if (!res.ok) throw new Error(await res.text());
 
       // 2. Fetch Latest Customer Email if needed
       let targetEmail = selectedOrder?.customer_email || 'customer@example.com'
@@ -181,8 +186,13 @@ export default function AdminDashboard() {
 
   const handleToggleDelete = async (orderId: string, isDelete: boolean) => {
     try {
-      const { error } = await supabase.from('orders').update({ is_deleted: isDelete }).eq('id', orderId)
-      if (error) throw error
+      const res = await fetch('/api/admin/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggleDelete', orderId, payload: { is_deleted: isDelete } })
+      });
+      if (!res.ok) throw new Error(await res.text());
+
       alert(isDelete ? "Order moved to Trash." : "Order restored to Active.")
       await fetchData()
     } catch (e: any) {

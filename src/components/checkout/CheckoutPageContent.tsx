@@ -78,42 +78,23 @@ export default function CheckoutPageContent() {
         receiptUrl = publicUrl
       }
 
-      // 2. Resolve internal Supabase UUID if the current ID is numeric (Google ID)
-      let customerUuid = (session?.user as any)?.id
-      const userEmail = session?.user?.email
+      // 2. Send Checkout Request to Secure Backend API
+      const checkoutRes = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          totalPrice,
+          cart,
+          formData,
+          trackingId,
+          receiptUrl
+        })
+      });
 
-      if (!customerUuid || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(customerUuid)) {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', userEmail)
-          .maybeSingle()
-        
-        if (profileError) throw new Error("Could not verify your account. Please try logging out and in again.")
-        
-        if (profile) {
-          customerUuid = profile.id
-        } else {
-          // Failure to find profile means the session is out of sync
-          throw new Error("Your account profile was not found. Please re-authenticate to continue.")
-        }
+      const checkoutData = await checkoutRes.json();
+      if (!checkoutRes.ok) {
+        throw new Error(checkoutData.error || checkoutData.details || "Failed to process order on the server.");
       }
-
-      // 3. Create Order
-      const { error } = await supabase.from('orders').insert([{
-        customer_id: customerUuid,
-        customer_email: userEmail, 
-        total_amount: totalPrice,
-        status: 'payment_sent',
-        items: cart,
-        shipping_address: formData.deliveryMethod === 'delivery' ? formData.address : 'Store Pickup',
-        delivery_method: formData.deliveryMethod,
-        contact_number: formData.phone,
-        transaction_id: trackingId,
-        payment_receipt: receiptUrl
-      }])
-
-      if (error) throw error
 
       setOrderId(trackingId)
       setStep(3)
