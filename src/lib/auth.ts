@@ -67,18 +67,19 @@ export const authOptions = {
     },
     async jwt({ token, user, account }: any) {
       if (user) {
-        token.role = user.role
+        token.role = user.role || 'user'
         token.id = user.id
         token.picture = (user as any).image || (user as any).avatar_url
       }
       
       if (token.email) {
         try {
+          // Fetch the Supabase profile to get the UUID
           const { data: profile } = await supabaseAdmin
             .from('profiles')
             .select('id, role')
             .eq('email', token.email)
-            .single()
+            .maybeSingle()
           
           if (profile) {
             token.id = profile.id
@@ -86,7 +87,9 @@ export const authOptions = {
           } else if (token.email === 'ajumobiayomipo@gmail.com') {
             token.role = 'admin'
           }
-        } catch (e) {}
+        } catch (e) {
+          console.error("JWT Profile Error:", e)
+        }
       }
       
       return token

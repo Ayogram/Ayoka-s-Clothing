@@ -76,8 +76,8 @@ export default function Home() {
             transition={{ duration: 1, ease: "easeOut" }}
             className="space-y-6"
           >
-            <h4 className="text-sm md:text-base uppercase tracking-[0.4em] gold-text font-sans">New Collection 2026</h4>
-            <h1 className="text-5xl md:text-8xl font-serif font-bold tracking-tight mb-4">
+            <h4 className="text-[10px] sm:text-sm md:text-base uppercase tracking-[0.4em] gold-text font-sans">New Collection 2026</h4>
+            <h1 className="text-4xl sm:text-5xl md:text-8xl font-serif font-bold tracking-tight mb-4 leading-none">
               CRAFTED TO <br /> BRING YOU JOY
             </h1>
             <p className="text-lg md:text-xl text-gray-200 font-sans tracking-wide max-w-2xl mx-auto mb-8 font-light">
@@ -158,7 +158,7 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-8 text-center relative z-10">
           <div className="max-w-3xl mx-auto space-y-10">
             <h5 className="text-[10px] md:text-xs uppercase tracking-[0.5em] gold-text font-bold">Concierge Service</h5>
-            <h2 className="text-5xl md:text-6xl font-serif font-bold italic leading-tight">Track Your Elegance</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-serif font-bold italic leading-tight">Track Your Elegance</h2>
             <p className="text-zinc-600 dark:text-zinc-400 font-light max-w-xl mx-auto text-sm md:text-base leading-relaxed">
               Stay informed about your order's journey from our atelier to your doorstep. 
               Enter your unique tracking ID below.

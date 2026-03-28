@@ -58,9 +58,9 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex flex-col items-center">
-          <span className="text-2xl font-serif font-bold tracking-widest gold-text">Ayoka</span>
-          <span className="text-[10px] tracking-[0.2em] -mt-1 uppercase text-zinc-500">Clothing</span>
+        <Link href="/" className="flex flex-col items-center shrink transition-all max-w-[120px] sm:max-w-none">
+          <span className="text-base sm:text-xl md:text-2xl font-serif font-bold tracking-[0.2em] sm:tracking-widest gold-text text-nowrap">Ayoka</span>
+          <span className="text-[6px] sm:text-[8px] md:text-[10px] tracking-[0.1em] sm:tracking-[0.2em] -mt-1 uppercase text-zinc-500 text-nowrap">Clothing</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -133,8 +133,8 @@ const Navbar = () => {
               </span>
             )}
           </Link>
-          <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          <button className="md:hidden flex items-center justify-center w-10 h-10" onClick={() => setIsOpen(!isOpen)}>
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>

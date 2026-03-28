@@ -82,15 +82,20 @@ export default function CheckoutPageContent() {
       let customerUuid = (session?.user as any)?.id
       const userEmail = session?.user?.email
 
-      if (customerUuid && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(customerUuid)) {
-        const { data: profile } = await supabase
+      if (!customerUuid || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(customerUuid)) {
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('id')
           .eq('email', userEmail)
-          .single()
+          .maybeSingle()
+        
+        if (profileError) throw new Error("Could not verify your account. Please try logging out and in again.")
         
         if (profile) {
           customerUuid = profile.id
+        } else {
+          // Failure to find profile means the session is out of sync
+          throw new Error("Your account profile was not found. Please re-authenticate to continue.")
         }
       }
 
@@ -140,11 +145,14 @@ export default function CheckoutPageContent() {
             {[1, 2, 3].map((s) => (
               <div 
                 key={s} 
-                className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500 ${
+                className={`relative z-10 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold transition-all duration-500 ${
                   step >= s ? "bg-gold-500 text-white" : "bg-white dark:bg-black border border-gray-200 dark:border-zinc-800"
                 }`}
               >
-                {step > s ? <Check size={16} /> : s}
+                {step > s ? <Check size={14} className="md:w-4 md:h-4" /> : s}
+                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] uppercase font-bold tracking-tighter opacity-0 md:opacity-100">
+                  {s === 1 ? 'Shipping' : s === 2 ? 'Payment' : 'Success'}
+                </div>
               </div>
             ))}
           </div>
@@ -261,8 +269,8 @@ export default function CheckoutPageContent() {
               >
                 <div className="text-center space-y-2">
                   <h5 className="text-[10px] uppercase tracking-[0.4em] gold-text font-bold">Step 02</h5>
-                  <h1 className="text-4xl font-serif font-bold">Payment Method</h1>
-                  <p className="text-xs uppercase tracking-widest text-gray-500">Bank Transfer Only</p>
+                  <h1 className="text-3xl md:text-4xl font-serif font-bold italic">Payment Method</h1>
+                  <p className="text-[10px] uppercase tracking-widest text-gray-500">Bank Transfer Only</p>
                 </div>
 
                 <div className="max-w-xl mx-auto space-y-8">
@@ -273,10 +281,10 @@ export default function CheckoutPageContent() {
                     </div>
                     
                     <div className="space-y-6">
-                      <div className="flex justify-between items-center group cursor-pointer" onClick={() => copyAccount("0156789173")}>
-                        <div>
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center group cursor-pointer" onClick={() => copyAccount("0156789173")}>
+                        <div className="mb-2 sm:mb-0">
                           <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Account Number</p>
-                          <p className="text-xl font-bold tracking-tighter">0156789173</p>
+                          <p className="text-xl sm:text-2xl font-bold tracking-tighter">0156789173</p>
                         </div>
                         <div className="p-2 hover:bg-gold-500/10 rounded-full transition-colors flex items-center space-x-2">
                           <span className="text-[10px] uppercase font-bold tracking-tighter text-gray-400 group-hover:text-gold-500 transition-colors">Copy</span>
@@ -306,7 +314,7 @@ export default function CheckoutPageContent() {
 
                   <div className="space-y-4 pt-4">
                     <p className="text-center text-[10px] uppercase tracking-widest text-gray-500 mb-4">Total Amount to Pay</p>
-                    <p className="text-center text-4xl font-bold tracking-tighter mb-8 italic">₦ {totalPrice.toLocaleString()}</p>
+                    <p className="text-center text-3xl sm:text-4xl font-bold tracking-tighter mb-8 italic">₦ {totalPrice.toLocaleString()}</p>
                     
                     <div className="space-y-3">
                       <label className="text-[10px] uppercase tracking-widest font-bold text-gray-500">Upload Proof of Payment</label>
@@ -314,9 +322,9 @@ export default function CheckoutPageContent() {
                         type="file" 
                         accept="image/*,.pdf"
                         onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
-                        className="w-full text-xs text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-none file:border-0 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:bg-zinc-100 dark:file:bg-zinc-900 file:text-black dark:file:text-white cursor-pointer hover:file:bg-gold-500 hover:file:text-white transition-all" 
+                        className="w-full text-[10px] text-gray-400 file:mr-4 file:py-3 file:px-4 file:rounded-none file:border-0 file:text-[9px] file:font-bold file:uppercase file:tracking-widest file:bg-zinc-100 dark:file:bg-zinc-900 file:text-black dark:file:text-white cursor-pointer hover:file:bg-gold-500 hover:file:text-white transition-all overflow-hidden" 
                       />
-                      {receiptFile && <p className="text-[9px] text-zinc-400 italic">Selected: {receiptFile.name}</p>}
+                      {receiptFile && <p className="text-[9px] text-zinc-400 italic break-all">Selected: {receiptFile.name}</p>}
                     </div>
 
                     <button

@@ -28,13 +28,13 @@ const TrackingInput = () => {
           type="text"
           value={trackingId}
           onChange={(e) => setTrackingId(e.target.value)}
-          placeholder="Enter Tracking ID (e.g., AYK-123456)"
-          className="w-full bg-white/5 dark:bg-zinc-950 backdrop-blur-sm border border-gold-500/20 group-hover:border-gold-500/50 focus:border-gold-500 outline-none rounded-full px-6 py-4 pr-16 text-sm tracking-widest transition-all duration-300 dark:text-white"
+          placeholder="Tracking ID (e.g., AYK-123456)"
+          className="w-full bg-white/5 dark:bg-zinc-950 backdrop-blur-sm border border-gold-500/20 group-hover:border-gold-500/50 focus:border-gold-500 outline-none rounded-full px-4 sm:px-6 py-4 pr-20 sm:pr-24 text-[11px] sm:text-sm tracking-widest transition-all duration-300 dark:text-white"
         />
         <button
           type="submit"
           disabled={loading}
-          className="absolute right-2 top-2 bottom-2 bg-gold-500 hover:bg-gold-600 text-white rounded-full px-6 flex items-center justify-center transition-all duration-300 disabled:opacity-70"
+          className="absolute right-1.5 top-1.5 bottom-1.5 bg-gold-500 hover:bg-gold-600 text-white rounded-full px-4 sm:px-6 flex items-center justify-center transition-all duration-300 disabled:opacity-70"
         >
           {loading ? (
             <Loader2 className="animate-spin" size={18} />

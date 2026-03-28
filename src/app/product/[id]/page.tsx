@@ -2,18 +2,20 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
 import { supabase } from "@/lib/supabase"
 import { Product } from "@/lib/types"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
-import { ShoppingBag, ChevronLeft, ChevronRight, Truck, ShieldCheck, RefreshCcw, Check } from "lucide-react"
+import { ShoppingBag, ChevronLeft, ChevronRight, Truck, ShieldCheck, RefreshCcw, Check, Lock } from "lucide-react"
 import { useCart } from "@/lib/CartContext"
 
 export default function ProductDetailPage() {
   const { id } = useParams()
   const router = useRouter()
+  const { data: session } = useSession()
   const [product, setProduct] = useState<Product | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const { addToCart } = useCart()
@@ -71,6 +73,11 @@ export default function ProductDetailPage() {
   const allImages = [product.main_image, ...(product.images || [])].filter(Boolean)
 
   const handleAddToCart = () => {
+    if (!session) {
+      router.push(`/login?callbackUrl=/product/${id}`)
+      return
+    }
+
     if (!selectedSize) {
       alert("Please select a size before adding to cart.")
       return
@@ -230,6 +237,11 @@ export default function ProductDetailPage() {
                           <Check size={18} />
                           <span>Added to Bag</span>
                         </>
+                      ) : !session ? (
+                        <>
+                          <Lock size={18} />
+                          <span>Login to Order</span>
+                        </>
                       ) : (
                         <>
                           <ShoppingBag size={18} />
@@ -238,6 +250,11 @@ export default function ProductDetailPage() {
                       )}
                     </button>
                   </div>
+                  {!session && (
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-center text-zinc-500 font-bold animate-pulse pt-2">
+                       Exclusive Piece - Authentication Required
+                    </p>
+                  )}
                 </div>
 
                 {/* Shipping info */}
