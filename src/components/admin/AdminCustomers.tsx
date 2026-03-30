@@ -41,7 +41,7 @@ export default function AdminCustomers() {
       })
 
       const combined = [
-        ...profileList.map(p => ({ 
+        ...profileList.map((p: any) => ({ 
           ...p, 
           total_spent: customerStats[p.id]?.total || 0, 
           order_count: customerStats[p.id]?.count || 0 
